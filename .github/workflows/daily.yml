@@ -1,28 +1,31 @@
 name: Daily Commit
 
+permissions:
+  contents: write
+
 on:
   schedule:
-    - cron: "17 3 * * *"   # Runs daily at 03:17 UTC
-  workflow_dispatch:       # lets you run manually for testing
+    - cron: "17 3 * * *"
+  workflow_dispatch:
 
 jobs:
   commit-job:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
 
       - name: 24f2008965@ds.study.iitm.ac.in step
-        run: |
-          echo "Last run: $(date)" >> daily-log.txt
+        run: echo "Last run: $(date)" >> daily-log.txt
 
       - name: Commit changes
         run: |
           git config user.name "github-actions"
           git config user.email "actions@github.com"
           git add .
-          git commit -m "Automated daily commit" || echo "No changes"
+          git diff --staged --quiet || git commit -m "Automated daily commit"
 
       - name: Push changes
         run: git push
